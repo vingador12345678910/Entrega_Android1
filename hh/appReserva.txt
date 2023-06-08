@@ -1,0 +1,55 @@
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import api from './service/api';
+import './style.css'
+
+
+export default function App() {
+  const [input, setInput] = useState('');
+  const [cep, setCep] = useState({});
+
+  async function handleSearch() {
+    if (input === '') {
+      alert("Digite algum CEP");
+      return;
+    }
+
+    try {
+      const response = await api.get(`${input}/json`);
+      setCep(response.data);
+      setInput('');
+    } catch {
+      alert("Ops, erro ao buscar");
+      setInput('');
+    }
+  }
+
+  return (
+    <View>
+      <Text>Buscador CEP</Text>
+      <View>
+        <TextInput
+          placeholder="Digite o CEP"
+          value={input}
+          onChangeText={setInput}
+        />
+
+        <TouchableOpacity onPress={handleSearch}>
+          <Feather name="search" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
+
+      {Object.keys(cep).length > 0 && (
+        <View>
+          <Text>CEP: {cep.cep}</Text>
+          <Text>Rua: {cep.logradouro}</Text>
+          <Text>Complemento: {cep.complemento}</Text>
+          <Text>Cidade: {cep.localidade}</Text>
+          <Text>Bairro: {cep.bairro}</Text>
+          <Text>Estado: {cep.uf}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
